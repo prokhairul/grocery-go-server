@@ -12,16 +12,28 @@ app.use(express.json());
 
 
 
-// Mongodb Connection 
-
+// Mongodb Connection & API For Product Loading
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.2m0za.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-client.connect(err => {
-    const collection = client.db("test").collection("devices");
-    console.log('Grocery Go Connected Successfully')
-    // perform actions on the collection object
-    client.close();
-});
+
+async function run() {
+    try {
+        await client.connect();
+        const productCollection = client.db('goGrocery').collection('product')
+        app.get('/product', async (req, res) => {
+            const query = {};
+            const cursor = productCollection.find(query);
+            const products = await cursor.toArray();
+            res.send(products);
+        })
+    }
+
+    finally {
+
+    }
+}
+
+run().catch(console.dir)
 
 
 

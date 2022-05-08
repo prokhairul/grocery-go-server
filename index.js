@@ -73,7 +73,7 @@ run().catch(console.dir)
 
 
 
-//Simple Testing Api Here
+//Simple Testing Api
 
 app.get('/', (req, res) => {
 

@@ -43,6 +43,19 @@ async function run() {
 
         })
 
+        // My Items API 
+
+        app.get('/items', async (req, res) => {
+            const email = req.query.email;
+
+            console.log('email Pay nai?')
+
+            const query = {};
+            const cursor = productCollection.find(query);
+            const items = await cursor.toArray();
+            res.send(items);
+        })
+
         // DELETE API - Delete Single Product
         app.delete('/product/:id', async (req, res) => {
             const id = req.params.id;

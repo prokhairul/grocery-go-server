@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
@@ -20,12 +20,38 @@ async function run() {
     try {
         await client.connect();
         const productCollection = client.db('goGrocery').collection('product')
+
         app.get('/product', async (req, res) => {
             const query = {};
             const cursor = productCollection.find(query);
             const products = await cursor.toArray();
             res.send(products);
+        });
+
+        app.get('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const product = await productCollection.findOne(query);
+            res.send(product);
+        });
+
+        //POST API - Add new Service
+        app.post('/product', async (req, res) => {
+            const newProduct = req.body;
+            const result = await productCollection.insertOne(newProduct);
+            res.send(result);
+
         })
+
+        // DELETE API - Delete Single Product
+        app.delete('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await productCollection.deleteOne(query)
+            res.send(result);
+        })
+
+
     }
 
     finally {

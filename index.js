@@ -11,7 +11,6 @@ app.use(cors());
 app.use(express.json());
 
 
-
 // Mongodb Connection & API For Product Loading
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.2m0za.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -47,11 +46,26 @@ async function run() {
 
         app.get('/items', async (req, res) => {
             const email = req.query.email;
-            console.log(email)
-            const query = { email: email };
+            const query = {};
             const cursor = productCollection.find(query);
             const items = await cursor.toArray();
             res.send(items);
+        })
+
+        // UPDATE API - Quantity update 
+        app.put('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const updatedQuantity = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    quantity: updatedQuantity.quantity
+                }
+            }
+            const result = await productCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+
         })
 
         // DELETE API - Delete Single Product
@@ -61,8 +75,6 @@ async function run() {
             const result = await productCollection.deleteOne(query)
             res.send(result);
         })
-
-
     }
 
     finally {
@@ -73,11 +85,9 @@ async function run() {
 run().catch(console.dir)
 
 
-
 //Simple Testing Api
 
 app.get('/', (req, res) => {
-
     res.send('Server Running Smoothly');
 })
 
